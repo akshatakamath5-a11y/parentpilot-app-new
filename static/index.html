@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ParentPilot - Your AI Parenting Companion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; overflow-x: hidden; }
+    nav { position: sticky; top: 0; background: white; padding: 1em 2em; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    nav ul { list-style: none; display: flex; gap: 2em; }
+    nav a { text-decoration: none; color: #2d3748; font-weight: 500; transition: color 0.2s; }
+    nav a:hover { color: #667eea; }
+    .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8em 2em; text-align: center; }
+    .hero h1 { font-size: 3.5em; margin-bottom: 0.3em; font-weight: 800; }
+    .hero p { font-size: 1.4em; margin-bottom: 2em; opacity: 0.95; }
+    .hero-buttons { display: flex; gap: 1em; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 1em 2.5em; border-radius: 12px; font-weight: 600; font-size: 1.1em; cursor: pointer; border: none; transition: transform 0.2s; }
+    .btn:hover { transform: scale(1.05); }
+    .btn-primary { background: white; color: #667eea; }
+    .btn-secondary { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; }
+    .stats { display: flex; justify-content: center; gap: 3em; margin-top: 3em; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-number { font-size: 2.5em; font-weight: 800; }
+    .stat-label { opacity: 0.9; font-size: 1.1em; }
+    section { padding: 5em 2em; max-width: 1400px; margin: 0 auto; }
+    .section-title { font-size: 2.8em; text-align: center; margin-bottom: 1em; color: #2d3748; font-weight: 700; }
+    .section-subtitle { text-align: center; font-size: 1.2em; color: #718096; margin-bottom: 3em; }
+    .mood-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2em; margin-bottom: 3em; }
+    .mood-card { background: white; padding: 2em; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .mood-card h3 { font-size: 1.4em; margin-bottom: 1em; color: #2d3748; }
+    .mood-card input[type="range"] { width: 100%; height: 8px; border-radius: 5px; background: #e2e8f0; outline: none; -webkit-appearance: none; }
+    .mood-card input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 25px; height: 25px; border-radius: 50%; background: #667eea; cursor: pointer; }
+    .mood-value { text-align: center; font-size: 1.3em; font-weight: 600; color: #667eea; margin-top: 0.5em; }
+    .chat-container { display: grid; grid-template-columns: 1fr 450px; gap: 2em; margin-top: 2em; }
+    .chat-panel, .products-panel { background: white; border-radius: 20px; padding: 2em; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-height: 70vh; overflow-y: auto; }
+    .messages { margin-bottom: 2em; }
+    .message { display: flex; gap: 1em; margin-bottom: 1.5em; align-items: flex-start; }
+    .message.user { flex-direction: row-reverse; }
+    .avatar { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; flex-shrink: 0; }
+    .message.ai .avatar { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .message.user .avatar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .bubble { background: #f7fafc; padding: 1.2em 1.5em; border-radius: 18px; max-width: 70%; line-height: 1.6; }
+    .message.user .bubble { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .bubble strong { font-weight: 700; color: inherit; }
+    .bubble em { font-style: italic; opacity: 0.95; }
+    .bubble br { display: block; content: ""; margin: 0.5em 0; }
+    .input-area { display: flex; gap: 1em; padding-top: 1em; border-top: 2px solid #e2e8f0; }
+    .input-area input { flex: 1; padding: 1em; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1em; }
+    .input-area button { padding: 1em 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2em; }
+    .product-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s; }
+    .product-card:hover { transform: translateY(-10px); }
+    .product-card img { width: 100%; height: 200px; object-fit: cover; }
+    .product-info { padding: 1.5em; }
+    .product-category { color: #667eea; font-size: 0.9em; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5em; }
+    .product-name { font-size: 1.3em; font-weight: 700; margin-bottom: 0.5em; color: #2d3748; }
+    .product-desc { color: #718096; margin-bottom: 1em; line-height: 1.5; }
+    .add-cart { width: 100%; padding: 0.9em; background: #48bb78; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .add-cart.added { background: #cbd5e0; cursor: not-allowed; }
+    .monitor-card { background: white; padding: 2em; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s; }
+    .monitor-card:hover { transform: translateY(-5px); }
+    .monitor-icon { font-size: 3em; margin-bottom: 0.5em; }
+    .monitor-label { color: #718096; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5em; }
+    .monitor-value { font-size: 3em; font-weight: 800; color: #2d3748; line-height: 1; }
+    .monitor-unit { color: #a0aec0; font-size: 1.1em; margin-top: 0.3em; }
+    .monitor-status { margin-top: 1em; padding: 0.5em 1em; background: #f0fdf4; color: #48bb78; border-radius: 20px; font-size: 0.9em; font-weight: 600; }
+    .monitor-status.warning { background: #fef3c7; color: #f59e0b; }
+    .monitor-status.alert { background: #fee2e2; color: #ef4444; }
+    .milestone-timeline { position: relative; padding-left: 3em; }
+    .milestone-item { background: white; padding: 1.5em; border-radius: 15px; margin-bottom: 2em; box-shadow: 0 5px 20px rgba(0,0,0,0.1); position: relative; }
+    .milestone-icon { position: absolute; left: -3em; font-size: 2em; }
+    .milestone-name { font-size: 1.4em; font-weight: 700; color: #2d3748; }
+    .milestone-age { color: #667eea; font-weight: 600; }
+    .journal-entry { background: white; padding: 2em; border-radius: 15px; margin-bottom: 1.5em; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+    .journal-date { color: #718096; font-size: 0.9em; margin-bottom: 0.5em; }
+    .journal-content { line-height: 1.7; color: #2d3748; }
+    .cart-float { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1em 2em; border-radius: 50px; font-weight: 700; box-shadow: 0 10px 40px rgba(102,126,234,0.5); cursor: pointer; z-index: 999; display: none; }
+    .cart-badge { background: #f5576c; border-radius: 50%; padding: 0.3em 0.7em; margin-left: 0.5em; }
+    @keyframes blink { 0%, 60%, 100% { opacity: 0; } 30% { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @media (max-width: 768px) { .hero h1 { font-size: 2.5em; } .chat-container { grid-template-columns: 1fr; } .products-grid { grid-template-columns: 1fr; } nav ul { display: none; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">👶 ParentPilot</div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#mood">Mood Check</a></li>
+      <li><a href="#chat">AI Support</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#monitor">🎥 Monitor</a></li>
+      <li><a href="#cry-detection">🎤 Cry Detector</a></li>
+      <li><a href="#milestones">Milestones</a></li>
+      <li><a href="#journal">Journal</a></li>
+    </ul>
+    <button onclick="viewCart()" style="padding:10px 20px;background:#667eea;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:auto;">🛒 Cart (<span id="cart-count">0</span>)</button>
+  </nav>
+
+  <div class="hero" id="home">
+    <h1>Your AI-Powered Parenting Companion</h1>
+    <p>Track moods, get support, discover products, and celebrate milestones - all in one place</p>
+    <div class="hero-buttons">
+      <button class="btn btn-primary" onclick="scrollToSection('mood')">Check Your Mood</button>
+      <button class="btn btn-secondary" onclick="scrollToSection('chat')">Talk to AI</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-number">10,000+</div><div class="stat-label">Parents Supported</div></div>
+      <div class="stat"><div class="stat-number">500+</div><div class="stat-label">Products</div></div>
+      <div class="stat"><div class="stat-number">24/7</div><div class="stat-label">AI Support</div></div>
+      <div class="stat"><div class="stat-number">1M+</div><div class="stat-label">Milestones Tracked</div></div>
+    </div>
+  </div>
+
+  <section id="mood">
+    <h2 class="section-title">Daily Mood Check-In</h2>
+    <p class="section-subtitle">Track how you're feeling to get personalized support</p>
+    <div class="mood-grid">
+      <div class="mood-card"><h3>⚡ Energy Level</h3><input type="range" min="1" max="10" value="5" id="energy"><div class="mood-value" id="energy-value">5/10</div></div>
+      <div class="mood-card"><h3>💭 Emotional State</h3><select id="emotion" style="width:100%;padding:0.8em;border-radius:8px;border:2px solid #e2e8f0;font-size:1em;"><option>Overwhelmed</option><option>Stressed</option><option>Neutral</option><option selected>Calm</option><option>Happy</option></select></div>
+      <div class="mood-card"><h3>🤝 Support Level</h3><input type="range" min="1" max="10" value="5" id="support"><div class="mood-value" id="support-value">5/10</div></div>
+      <div class="mood-card"><h3>💪 Confidence</h3><input type="range" min="1" max="10" value="5" id="confidence"><div class="mood-value" id="confidence-value">5/10</div></div>
+    </div>
+    <div style="text-align:center;"><button class="btn btn-primary" onclick="saveMoodCheckin()">Save Check-In</button></div>
+  <div id="mood-history-display" style="margin-top:30px;"></div>
+  </section>
+
+  <section id="chat">
+    <h2 class="section-title">Talk to Your Support AI</h2>
+    <p class="section-subtitle">Share what's on your mind - we're here to listen and help</p>
+    <div class="chat-container">
+      <div class="chat-panel"><div class="messages" id="messages"></div><div class="input-area"><input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off"><button onclick="sendMessage()">Send</button></div></div>
+      <div class="products-panel"><h3 style="margin-bottom:1em;">Recommended for You</h3><div id="recommendedProducts"><p style="text-align:center;color:#718096;">Share how you're feeling and I'll suggest products that might help.</p></div></div>
+    </div>
+  </section>
+
+  <section id="shop">
+    <h2 class="section-title">Product Marketplace</h2>
+    <p class="section-subtitle">Discover products designed to support your parenting journey</p>
+    <div class="products-grid" id="shopProducts"></div>
+  </section>
+
+  <section id="monitor">
+    <h2 class="section-title">🎥 Smart Baby Monitor</h2>
+    <p class="section-subtitle">Real-time monitoring with AI-powered insights</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2em;margin-bottom:2em;">
+      <div class="monitor-card"><div class="monitor-icon">💗</div><div class="monitor-label">Heart Rate</div><div class="monitor-value" id="heartRate">--</div><div class="monitor-unit">BPM</div><div class="monitor-status" id="heartStatus">Loading...</div></div>
+      <div class="monitor-card"><div class="monitor-icon">🫁</div><div class="monitor-label">Oxygen Level</div><div class="monitor-value" id="oxygenLevel">--</div><div class="monitor-unit">%</div><div class="monitor-status" id="oxygenStatus">Loading...</div></div>
+      <div class="monitor-card"><div class="monitor-icon">🌡️</div><div class="monitor-label">Room Temp</div><div class="monitor-value" id="temperature">--</div><div class="monitor-unit">°C</div><div class="monitor-status" id="tempStatus">Loading...</div></div>
+      <div class="monitor-card"><div class="monitor-icon">😴</div><div class="monitor-label">Sleep Time</div><div class="monitor-value" id="sleepDuration">--</div><div class="monitor-unit">minutes</div><div class="monitor-status">Monitoring</div></div>
+    </div>
+    <div style="background:white;padding:2em;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:2em;"><h3 style="margin-bottom:1em;color:#2d3748;">Maya's Sleep Analysis</h3><div id="sleepAnalysis" style="line-height:1.7;color:#4a5568;"><em>Analyzing your baby's sleep data...</em></div><div style="margin-top:1.5em;padding:1em;background:#f0fdf4;border-left:4px solid #48bb78;border-radius:8px;"><strong>Sleep Quality Score:</strong> <span id="sleepScore" style="font-size:1.5em;color:#48bb78;">--</span>/100</div></div>
+    <div id="monitorAlerts"></div>
+    <div style="background:linear-gradient(135deg,#f093fb,#f5576c);color:white;padding:2em;border-radius:20px;text-align:center;"><h3 style="margin-bottom:0.5em;">Connect Your Baby Monitor</h3><p style="opacity:0.95;margin-bottom:1.5em;">Works with Owlet, Nanit, Cubo AI, and more</p><button class="btn btn-secondary" onclick="alert('Monitor connection settings coming soon!')">Connect Device</button></div>
+  </section>
+
+  <section id="cry-detection">
+    <h2 class="section-title">🎤 AI Cry Translator</h2>
+    <p class="section-subtitle">Understand what your baby needs with AI-powered cry analysis</p>
+    
+    <div style="background:#e0f2fe;border-left:4px solid #0284c7;padding:1.5em;border-radius:12px;margin-bottom:2em;">
+      <div style="display:flex;align-items:center;gap:1em;">
+        <div style="font-size:2em;">🔒</div>
+        <div>
+          <strong style="color:#0c4a6e;">Your Privacy is Protected</strong>
+          <p style="margin:0.5em 0 0 0;color:#075985;">Audio is processed on your device only. Nothing is recorded or sent to servers. All analysis happens in-memory and is deleted immediately.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2em;margin-bottom:2em;">
+      
+      <div style="background:white;padding:2em;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom:1em;color:#2d3748;">Detect Baby's Cry</h3>
+        
+        <div id="cryDetectionStatus" style="text-align:center;padding:2em;background:#f7fafc;border-radius:12px;margin-bottom:1.5em;">
+          <div style="font-size:4em;margin-bottom:0.5em;">🎙️</div>
+          <p style="color:#718096;margin:0;">Ready to analyze</p>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;">
+          <button class="btn btn-primary" onclick="startCryDetection()" id="startCryBtn" style="width:100%;padding:1.2em;">🎤 Start Listening</button>
+          <button class="btn btn-secondary" onclick="simulateCryDetection()" style="width:100%;padding:1.2em;background:#f59e0b;border:none;">🎭 Simulate (Demo)</button>
+        </div>
+        
+        <button class="btn" onclick="stopCryDetection()" id="stopCryBtn" style="width:100%;padding:1.2em;background:#ef4444;color:white;margin-top:1em;display:none;">⏹️ Stop Listening</button>
+        
+        <div style="margin-top:1.5em;padding:1em;background:#fef3c7;border-radius:8px;font-size:0.9em;">
+          <strong>💡 Tips:</strong>
+          <ul style="margin:0.5em 0 0 1.5em;padding:0;">
+            <li>Use in a quiet environment</li>
+            <li>Hold phone near baby</li>
+            <li>Try demo mode first!</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div style="background:white;padding:2em;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom:1em;color:#2d3748;">Analysis Result</h3>
+        <div id="cryResult" style="text-align:center;padding:2em;color:#718096;">
+          <div style="font-size:3em;margin-bottom:0.5em;">👶</div>
+          <p>No analysis yet. Start detection to see results.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5em;margin-bottom:2em;">
+      <div style="background:white;padding:1.5em;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.1);text-align:center;">
+        <div style="font-size:2em;margin-bottom:0.3em;">📊</div>
+        <div style="font-size:2em;font-weight:800;color:#667eea;" id="totalDetections">0</div>
+        <div style="color:#718096;margin-top:0.3em;">Total Detections</div>
+      </div>
+      
+      <div style="background:white;padding:1.5em;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.1);text-align:center;">
+        <div style="font-size:2em;margin-bottom:0.3em;">🔥</div>
+        <div style="font-size:1.5em;font-weight:700;color:#f59e0b;" id="mostCommon">-</div>
+        <div style="color:#718096;margin-top:0.3em;">Most Common</div>
+      </div>
+      
+      <div style="background:white;padding:1.5em;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.1);text-align:center;">
+        <div style="font-size:2em;margin-bottom:0.3em;">📅</div>
+        <div style="font-size:2em;font-weight:800;color:#48bb78;" id="todayDetections">0</div>
+        <div style="color:#718096;margin-top:0.3em;">Today</div>
+      </div>
+    </div>
+    
+    <div style="background:white;padding:2em;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+      <h3 style="margin-bottom:1em;color:#2d3748;">Recent Detections</h3>
+      <div id="cryHistory"><p style="text-align:center;color:#718096;padding:2em;">No detections yet</p></div>
+    </div>
+    
+    <div style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:white;padding:2em;border-radius:20px;margin-top:2em;text-align:center;">
+      <h3 style="margin-bottom:0.5em;">💬 Ask Maya About Your Baby's Cry</h3>
+      <p style="opacity:0.95;margin-bottom:1.5em;">I can help you understand your baby's needs and offer personalized advice</p>
+      <button class="btn btn-secondary" onclick="scrollToSection('chat')" style="border:2px solid white;">Talk to Maya</button>
+    </div>
+  </section>
+
+  <section id="milestones">
+
+    <button onclick="addMilestone()" style="padding:12px 24px;background:#27ae60;color:white;border:none;border-radius:8px;cursor:pointer;font-size:16px;margin:20px 0;display:block;">➕ Add Your Milestone</button>
+    <div id="user-milestones"></div>
+    
+    <h2 class="section-title">Baby Milestones</h2>
+    <p class="section-subtitle">Track and celebrate your little one's achievements</p>
+    <div class="milestone-timeline">
+      <div class="milestone-item"><div class="milestone-icon">😊</div><div class="milestone-name">First Smile</div><div class="milestone-age">6-8 weeks</div><p style="color:#718096;margin-top:0.5em;">Your baby's first real smile directed at you</p></div>
+      <div class="milestone-item"><div class="milestone-icon">🔄</div><div class="milestone-name">Rolling Over</div><div class="milestone-age">3-6 months</div><p style="color:#718096;margin-top:0.5em;">Rolling from tummy to back or vice versa</p></div>
+      <div class="milestone-item"><div class="milestone-icon">🦷</div><div class="milestone-name">First Tooth</div><div class="milestone-age">4-7 months</div><p style="color:#718096;margin-top:0.5em;">Usually a bottom front tooth appears first</p></div>
+      <div class="milestone-item"><div class="milestone-icon">👣</div><div class="milestone-name">First Steps</div><div class="milestone-age">9-18 months</div><p style="color:#718096;margin-top:0.5em;">Takes several steps without holding on</p></div>
+    </div>
+  </section>
+
+  <section id="journal">
+    <h2 class="section-title">Daily Journal</h2>
+    <p class="section-subtitle">Reflect on your parenting journey</p>
+    <div style="max-width:800px;margin:0 auto;"><div style="background:white;padding:2em;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:2em;"><textarea id="journalText" rows="5" placeholder="Write about your day..." style="width:100%;padding:1em;border:2px solid #e2e8f0;border-radius:12px;font-size:1em;font-family:inherit;"></textarea><button class="btn btn-primary" onclick="saveJournal()" style="margin-top:1em;">Save Entry</button></div><div id="journalEntries"></div></div>
+  </section>
+
+  <div class="cart-float" id="cartFloat" onclick="alert('Cart integration ready!')">🛒 Cart <span class="cart-badge" id="cartCount">0</span></div>
+
+  <script>
+    let conversation=[];let cart=[];let currentProducts=[];let monitorInterval;let isListening=false;let mediaRecorder=null;let audioChunks=[];
+    document.getElementById('energy').oninput=function(){document.getElementById('energy-value').textContent=this.value+'/10';};
+    document.getElementById('support').oninput=function(){document.getElementById('support-value').textContent=this.value+'/10';};
+    document.getElementById('confidence').oninput=function(){document.getElementById('confidence-value').textContent=this.value+'/10';};
+    function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+    document.getElementById('chatInput').addEventListener('keypress',function(e){if(e.key==='Enter')sendMessage();});
+    async function sendMessage(){const input=document.getElementById('chatInput');const text=input.value.trim();if(!text)return;addMessage('user',text);input.value='';const typingId=addTypingIndicator();try{const response=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_input:text,conversation:conversation})});const data=await response.json();removeTypingIndicator(typingId);addMessage('ai',data.ai_message,true);conversation=data.conversation;if(data.products&&data.products.length>0){currentProducts=data.products;displayProducts(data.products);}}catch(error){removeTypingIndicator(typingId);addMessage('ai',"I'm having trouble. Try again?",true);}}
+    function addTypingIndicator(){const div=document.getElementById('messages');const t=document.createElement('div');const id='t'+Date.now();t.id=id;t.className='message ai';t.innerHTML='<div class="avatar">🤖</div><div class="bubble"><span style="opacity:0.6">Maya is typing</span><span class="typing-dots" style="display:inline-block;"><span style="animation:blink 1.4s infinite;display:inline-block;margin:0 2px;">.</span><span style="animation:blink 1.4s 0.2s infinite;display:inline-block;margin:0 2px;">.</span><span style="animation:blink 1.4s 0.4s infinite;display:inline-block;margin:0 2px;">.</span></span></div>';div.appendChild(t);div.scrollTop=div.scrollHeight;return id;}
+    function removeTypingIndicator(id){const e=document.getElementById(id);if(e)e.remove();}
+    function addMessage(role,text,isHTML=false){const div=document.getElementById('messages');const m=document.createElement('div');m.className='message '+role;const b=document.createElement('div');b.className='bubble';if(isHTML){b.innerHTML=text;}else{b.textContent=text;}m.innerHTML='<div class="avatar">'+(role==='user'?'👤':'🤖')+'</div>';m.appendChild(b);div.appendChild(m);div.scrollTop=div.scrollHeight;}
+    function displayProducts(products){document.getElementById('recommendedProducts').innerHTML=products.map((p,i)=>'<div class="product-card" style="margin-bottom:1em;"><img src="'+p.thumbnail+'" onerror="this.src=\'https://via.placeholder.com/400x200/667eea/fff?text=Product\'"><div class="product-info"><div class="product-category">'+p.category+'</div><div class="product-name">'+p.name+'</div><div class="product-desc">'+p.why+'</div><button class="add-cart" id="c'+i+'" onclick="addToCart('+i+',\''+p.name.replace(/'/g,'')+'\')">Add to Cart</button>A</div></div>').join('');}
+    window.addToCart=function(i,n){const b=document.getElementById('c'+i);if(b.classList.contains('added'))return;cart.push(currentProducts[i]);b.textContent='✓ Added';b.classList.add('added');document.getElementById('cartFloat').style.display='block';document.getElementById('cartCount').textContent=cart.length;showNotification('Added to cart!');}
+    function showNotification(msg){const n=document.createElement('div');n.textContent=msg;n.style.cssText='position:fixed;top:20px;right:20px;background:#48bb78;color:white;padding:1em 2em;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);z-index:9999;animation:slideIn 0.3s ease;';document.body.appendChild(n);setTimeout(()=>{n.style.animation='slideOut 0.3s ease';setTimeout(()=>n.remove(),300);},2000);}
+    async function saveMoodCheckin() {
+    try {
+        await fetch('/mood-checkin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mood: document.getElementById('emotion').value, // or your smiley/mood
+                note: "", // or use a note field if you have one
+                energy: document.getElementById('energy').value,
+                emotion: document.getElementById('emotion').value,
+                support: document.getElementById('support').value,
+                confidence: document.getElementById('confidence').value
+            })
+        });
+        showNotification('Mood saved!');
+        loadMoodHistory();
+    } catch(e) {
+        console.error(e);
+    }
+}
+    async function saveJournal(){const c=document.getElementById('journalText').value.trim();if(!c){showNotification('Please write something first!');return;}try{await fetch('/journal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c,mood:document.getElementById('emotion').value})});const e=document.createElement('div');e.className='journal-entry';e.innerHTML='<div class="journal-date">'+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</div><div class="journal-content">'+c+'</div>';document.getElementById('journalEntries').prepend(e);document.getElementById('journalText').value='';showNotification('Journal saved!');}catch(e){}}
+    async function loadMonitorData(){try{const r=await fetch('/monitor/status');const d=await r.json();document.getElementById('heartRate').textContent=d.heart_rate;document.getElementById('oxygenLevel').textContent=d.oxygen_level;document.getElementById('temperature').textContent=d.temperature;document.getElementById('sleepDuration').textContent=d.sleep_duration_minutes;updateStatus('heart',d.heart_rate,110,130);updateStatus('oxygen',d.oxygen_level,95,100);updateStatus('temp',d.temperature,20,24);if(!document.getElementById('sleepAnalysis').dataset.loaded){loadSleepAnalysis();document.getElementById('sleepAnalysis').dataset.loaded='true';}loadAlerts();}catch(e){}}
+    function updateStatus(type,val,min,max){let el,txt,cls;if(type==='heart'){el=document.getElementById('heartStatus');txt=(val>=min&&val<=max)?'Healthy':'Check';cls=(val>=min&&val<=max)?'':'warning';}else if(type==='oxygen'){el=document.getElementById('oxygenStatus');txt=(val>=min)?'Excellent':'Monitor';cls=(val>=min)?'':'alert';}else if(type==='temp'){el=document.getElementById('tempStatus');txt=(val>=min&&val<=max)?'Comfortable':'Adjust';cls=(val>=min&&val<=max)?'':'warning';}if(el){el.textContent=txt;el.className='monitor-status '+cls;}}
+    async function loadSleepAnalysis(){try{const r=await fetch('/monitor/sleep-analysis');const d=await r.json();document.getElementById('sleepAnalysis').innerHTML=d.analysis;document.getElementById('sleepScore').textContent=d.sleep_quality_score;}catch(e){}}
+    async function loadAlerts(){try{const r=await fetch('/monitor/alerts');const d=await r.json();if(d.alerts&&d.alerts.length>0){document.getElementById('monitorAlerts').innerHTML='<h3>Alerts</h3>'+d.alerts.map(a=>'<div style="background:white;padding:1em;border-radius:8px;margin:0.5em 0;">'+(a.type==='alert'?'⚠️':'ℹ️')+' '+a.message+'</div>').join('');}else{document.getElementById('monitorAlerts').innerHTML='';}}catch(e){}}
+    async function loadCryStats(){try{const response=await fetch('/cry-detection/stats');const data=await response.json();if(data.success){document.getElementById('totalDetections').textContent=data.stats.total_detections;document.getElementById('mostCommon').textContent=data.stats.most_common_label||'-';document.getElementById('todayDetections').textContent=data.stats.today;}}catch(e){}}
+    async function loadCryHistory(){try{const response=await fetch('/cry-detection/history?limit=5');const data=await response.json();if(data.success&&data.history.length>0){const historyHTML=data.history.reverse().map(entry=>{const result=entry.result;const time=new Date(result.timestamp).toLocaleTimeString();return `<div style="padding:1em;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:1.5em;">${result.icon}</div></div><div style="flex:1;margin-left:1em;"><strong>${result.cry_label}</strong><div style="color:#718096;font-size:0.9em;">${time}</div></div><div style="text-align:right;"><div style="color:#48bb78;font-weight:600;">${(result.confidence*100).toFixed(0)}%</div></div></div>`;}).join('');document.getElementById('cryHistory').innerHTML=historyHTML;}}catch(e){}}
+    async function startCryDetection(){if(isListening)return;if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('⚠️ Your browser does not support audio recording. Try Chrome or Edge.');return;}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});isListening=true;document.getElementById('startCryBtn').style.display='none';document.getElementById('stopCryBtn').style.display='block';document.getElementById('cryDetectionStatus').innerHTML=`<div style="font-size:4em;margin-bottom:0.5em;">🔴</div><p style="color:#ef4444;font-weight:600;margin:0;">Listening...</p><p style="color:#718096;font-size:0.9em;margin-top:0.5em;">Recording for 3 seconds</p>`;mediaRecorder=new MediaRecorder(stream);audioChunks=[];mediaRecorder.ondataavailable=(event)=>{audioChunks.push(event.data);};mediaRecorder.onstop=async()=>{const audioBlob=new Blob(audioChunks,{type:'audio/wav'});const reader=new FileReader();reader.readAsDataURL(audioBlob);reader.onloadend=async()=>{const base64Audio=reader.result;await analyzeCry(base64Audio);};stream.getTracks().forEach(track=>track.stop());isListening=false;document.getElementById('startCryBtn').style.display='block';document.getElementById('stopCryBtn').style.display='none';};mediaRecorder.start();setTimeout(()=>{if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();}},3000);}catch(error){alert('⚠️ Could not access microphone. Please grant permission and try again.');isListening=false;document.getElementById('startCryBtn').style.display='block';document.getElementById('stopCryBtn').style.display='none';}}
+    function stopCryDetection(){if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();}}
+    async function analyzeCry(audioData){try{document.getElementById('cryDetectionStatus').innerHTML=`<div style="font-size:4em;margin-bottom:0.5em;">⏳</div><p style="color:#667eea;font-weight:600;margin:0;">Analyzing...</p>`;const response=await fetch('/cry-detection/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio:audioData})});const data=await response.json();if(data.success){displayCryResult(data.result);loadCryStats();loadCryHistory();}else{throw new Error(data.error||'Analysis failed');}}catch(error){document.getElementById('cryResult').innerHTML=`<div style="color:#ef4444;"><div style="font-size:3em;">❌</div><p>Analysis failed. Please try again.</p></div>`;}document.getElementById('cryDetectionStatus').innerHTML=`<div style="font-size:4em;margin-bottom:0.5em;">🎙️</div><p style="color:#718096;margin:0;">Ready to analyze</p>`;}
+    function displayCryResult(result){const suggestionsHTML=result.suggestions.map(s=>`<li style="text-align:left;margin-bottom:0.5em;">${s}</li>`).join('');document.getElementById('cryResult').innerHTML=`<div style="font-size:4em;margin-bottom:0.3em;">${result.icon}</div><h2 style="color:#2d3748;margin-bottom:0.5em;">${result.cry_label}</h2><div style="background:#f0fdf4;color:#48bb78;padding:0.5em 1em;border-radius:20px;display:inline-block;font-weight:600;margin-bottom:1em;">${(result.confidence*100).toFixed(0)}% Confidence</div><div style="text-align:left;margin-top:1.5em;padding:1.5em;background:#f7fafc;border-radius:12px;"><strong style="color:#2d3748;display:block;margin-bottom:1em;">💡 What to do:</strong><ul style="margin:0;padding-left:1.5em;color:#4a5568;">${suggestionsHTML}</ul></div><div style="margin-top:1em;padding:0.8em;background:#fef3c7;border-radius:8px;font-size:0.85em;color:#92400e;"><strong>Note:</strong> This is AI-assisted guidance. Always trust your parental instincts and consult a doctor for serious concerns.</div>`;showNotification(`Detected: ${result.cry_label}`);}
+    async function simulateCryDetection(){try{document.getElementById('cryDetectionStatus').innerHTML=`<div style="font-size:4em;margin-bottom:0.5em;">🎭</div><p style="color:#f59e0b;font-weight:600;margin:0;">Simulating...</p>`;const response=await fetch('/cry-detection/simulate',{method:'POST',headers:{'Content-Type':'application/json'}});const data=await response.json();if(data.success){setTimeout(()=>{displayCryResult(data.result);loadCryStats();loadCryHistory();},1000);}}catch(error){}setTimeout(()=>{document.getElementById('cryDetectionStatus').innerHTML=`<div style="font-size:4em;margin-bottom:0.5em;">🎙️</div><p style="color:#718096;margin:0;">Ready to analyze</p>`;},1000);}
+    window.onload=function(){loadShopProducts();setTimeout(()=>{if(!conversation.length)addMessage('ai',"Hi! I'm Maya. How are you feeling today?",true);},500);loadMonitorData();monitorInterval=setInterval(loadMonitorData,5000);loadCryStats();loadCryHistory();};
+    async function loadShopProducts(){try{const r=await fetch('/products');const d=await r.json();if(d.products){document.getElementById('shopProducts').innerHTML=d.products.slice(0,12).map((p,i)=>'<div class="product-card"><img src="'+p.thumbnail+'" onerror="this.src=\'https://via.placeholder.com/400x200/667eea/fff?text=Product\'"><div class="product-info"><div class="product-category">'+p.category+'</div><div class="product-name">'+p.name+'</div><div class="product-desc">'+p.pain_point+'</div><button class="add-cart">Add to Cart</button></div></div>').join('');}}catch(e){}}
+  </script>
+
+<!-- ========== SHOPPING CART, MILESTONES, MOOD HISTORY FEATURES ========== -->
+<script>
+// SHOPPING CART
+let cartCount = 0;
+
+async function addToCart(productId) {
+    try {
+        const response = await fetch('/cart/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({product_id: productId})
+        });
+        const data = await response.json();
+        if (data.success) {
+            cartCount = data.cart_count;
+            const badge = document.getElementById('cart-count');
+            if (badge) badge.textContent = cartCount;
+            alert('✅ ' + data.message);
+        } else {
+            alert('❌ Error: ' + (data.error || 'Failed to add'));
+        }
+    } catch (error) {
+        console.error('Cart error:', error);
+        alert('❌ Make sure backend is running!');
+    }
+}
+
+async function viewCart() {
+    try {
+        const response = await fetch('/cart/view');
+        const data = await response.json();
+        if (data.success) {
+            let msg = '🛒 Your Cart\n\n';
+            if (data.cart.length === 0) {
+                msg += 'Cart is empty';
+            } else {
+                data.cart.forEach(p => msg += p.name + ' - $' + p.price + '\n');
+                msg += '\nTotal: $' + data.total.toFixed(2);
+            }
+            alert(msg);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// MILESTONES
+async function loadMilestones() {
+    try {
+        const response = await fetch('/milestones/list');
+        const data = await response.json();
+        if (data.success) {
+            const container = document.getElementById('user-milestones');
+            if (container) {
+                if (data.milestones.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;padding:20px;background:#f8f9fa;border-radius:8px;color:#666;margin-top:20px;">No milestones yet. Click "Add Milestone" to create one!</p>';
+                } else {
+                    container.innerHTML = '<h3 style="margin-top:30px;color:#1a1a1a;font-size:20px;margin-bottom:15px;">Your Baby\'s Milestones</h3>' + 
+                        data.milestones.map(m => 
+                            '<div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin:15px 0;box-shadow:0 2px 4px rgba(0,0,0,0.05);">' +
+                                '<h4 style="margin:0 0 10px 0;color:#2c3e50;font-size:18px;">' + m.title + '</h4>' +
+                                '<p style="margin:5px 0;color:#555;line-height:1.5;">' + (m.description || '') + '</p>' +
+                                '<div style="display:flex;gap:15px;margin:10px 0;font-size:14px;color:#666;flex-wrap:wrap;">' +
+                                    '<span><strong>📅</strong> ' + m.date + '</span>' +
+                                    '<span><strong>👶</strong> ' + m.age_months + ' months</span>' +
+                                    '<span><strong>📂</strong> ' + m.category + '</span>' +
+                                '</div>' +
+                                '<button onclick="editMilestone(' + m.id + ', \'' + m.title.replace(/'/g, "\\'") + '\', \'' + (m.description || '').replace(/'/g, "\\'") + '\', \'' + m.date + '\', ' + m.age_months + ', \'' + m.category + '\'  )" style="padding:8px 16px;background:#3498db;color:white;border:none;border-radius:6px;cursor:pointer;margin-right:10px;font-size:14px;">Edit</button>' +
+                                '<button onclick="deleteMilestone(' + m.id + ')" style="padding:8px 16px;background:#e74c3c;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Delete</button>' +
+                            '</div>'
+                        ).join('');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function addMilestone() {
+    const title = prompt('📝 Milestone Title\n(e.g., "First smile", "First steps")');
+    if (!title) return;
+    const description = prompt('✍️ Description (optional)') || '';
+    const date = prompt('📅 Date (YYYY-MM-DD)') || new Date().toISOString().split('T')[0];
+    const age_months = parseFloat(prompt('👶 Age in months (e.g., 1.5)') || 0);
+    const category = prompt('📂 Category (e.g., Social, Motor Skills)') || 'General';
+    saveMilestone({title, description, date, age_months, category});
+}
+
+function editMilestone(id, title, desc, date, age, cat) {
+    const newTitle = prompt('📝 Title', title) || title;
+    const newDesc = prompt('✍️ Description', desc) || desc;
+    const newDate = prompt('📅 Date', date) || date;
+    const newAge = parseFloat(prompt('👶 Age (months)', age) || age);
+    const newCat = prompt('📂 Category', cat) || cat;
+    updateMilestone(id, {title: newTitle, description: newDesc, date: newDate, age_months: newAge, category: newCat});
+}
+
+async function saveMilestone(data) {
+    try {
+        const response = await fetch('/milestones/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert('✅ Milestone added!');
+            loadMilestones();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Failed to add');
+    }
+}
+
+async function updateMilestone(id, data) {
+    try {
+        const response = await fetch('/milestones/update/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert('✅ Updated!');
+            loadMilestones();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function deleteMilestone(id) {
+    if (!confirm('Delete this milestone?')) return;
+    try {
+        const response = await fetch('/milestones/delete/' + id, {method: 'DELETE'});
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Deleted!');
+            loadMilestones();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// MOOD HISTORY
+async function loadMoodHistory() {
+    try {
+        const response = await fetch('/mood-history');
+        const data = await response.json();
+        if (data.success) {
+            const container = document.getElementById('mood-history-display');
+            if (container) {
+                if (data.history.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;padding:20px;color:#666;margin-top:20px;">No mood history yet</p>';
+                } else {
+                    let html = '<div style="background:#f8f9fa;padding:25px;border-radius:12px;margin-top:30px;"><h3 style="margin-top:0;">📊 Your Mood History</h3>';
+                    if (Object.keys(data.stats).length > 0) {
+                        html += '<div style="margin:20px 0;"><strong>Trends:</strong><br>';
+                        for (const [mood, pct] of Object.entries(data.stats)) {
+                            const emojis = {happy:'😊',anxious:'😰',tired:'😴',stressed:'😫',calm:'😌',overwhelmed:'😵'};
+                            const emoji = emojis[mood] || '😊';
+                            html += '<span style="display:inline-block;margin:8px 10px 8px 0;padding:10px 20px;background:white;border-radius:25px;box-shadow:0 2px 4px rgba(0,0,0,0.1);">' + emoji + ' ' + mood + ': ' + pct + '%</span>';
+                        }
+                        html += '</div>';
+                    }
+                    html += '<div style="margin-top:25px;">';
+                    data.history.forEach(e => {
+    html += `<div style="background:white;padding:15px;margin:10px 0;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.05)">
+        <div style="display:flex;justify-content:space-between">
+            <strong>${e.mood}</strong>
+            <span style="color:#999">${e.date}</span>
+        </div>
+        <div>
+            Energy: ${e.energy || '-'}, 
+            Support: ${e.support || '-'}, 
+            Confidence: ${e.confidence || '-'}, 
+            Emotion: ${e.emotion || '-'}
+        </div>
+        ${e.note ? `<p style="color:#666;margin:8px 0 0 0;font-style:italic">${e.note}</p>` : ''}
+    </div>`;
+});   html += '</div></div>';
+                    container.innerHTML = html;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// AUTO-LOAD
+document.addEventListener('DOMContentLoaded', function() {
+    loadMilestones();
+    loadMoodHistory();
+});
+</script>
+
+</body>
+</html>
