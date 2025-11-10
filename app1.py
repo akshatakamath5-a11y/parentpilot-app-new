@@ -202,35 +202,36 @@ def get_maya_nurturebot(user_input, conversation_history):
             for m in conversation_history[-10:]
         ])
         prompt = f"""
-You are Maya, an empathetic, context-aware AI parenting assistant.
-Always reference what the parent shared earlier ("You mentioned..."; "Following up on...").
-Ask 1-2 gentle follow-up questions based on conversation history.
-Give detailed, encouraging suggestions—including helpful coping strategies, well-being tips, and relevant parenting products if any fit.
-Always show warmth and speak conversationally; respond as a supportive friend.
-
-Previous conversation:
-{context}
-
-Parent: {user_input}
-
-Respond as Maya. Be supportive, always refer to earlier messages, suggest relevant products if helpful, ask a clarifying question, and provide actionable advice (2-4 paragraphs):
-"""
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        You are Maya, an empathetic, context-aware AI parenting assistant.
+        Always reference what the parent shared earlier ("You mentioned..."; "Following up on...").
+        Ask 1-2 gentle follow-up questions based on conversation history.
+        Give detailed, encouraging suggestions—including helpful coping strategies, well-being tips, and relevant parenting products if any fit.
+        Always show warmth and speak conversationally; respond as a supportive friend.
+        Previous conversation:
+        {context}
+        Parent: {user_input}
+        Respond as Maya. Be warm, supportive, and highly concise—give your advice in no more than 2-4 sentences. Ask only one gentle follow-up question. If suggesting products, mention only one that best fits. Avoid long explanations, bullet points, or lists. Example length: 2-3 lines.
+:
+        """
+        # Model name fallback for reliability
+        try:
+            model = genai.GenerativeModel('gemini-2.5-flash')
+        except Exception:
+            model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(
-            prompt,
-            temperature=0.93,
-            top_p=0.96,
-            max_output_tokens=800
+            prompt
         )
         return response.text.strip()
     except Exception as e:
+        # Log the error for debugging (ideally send to logging, not just print)
+        print(f"[Gemini API Error] {e}")
         fallback_responses = [
             "Parenting can be so tough. Can you tell me more about your situation?",
             "Thank you for sharing. What's been worrying you most recently?",
             "I'm here to support you, however you're feeling. Can you describe what's going on?",
             "Let's troubleshoot together. Are there specific situations or times when this shows up?"
         ]
-        return random.choice(fallback_responses)
+        return f"{random.choice(fallback_responses)} (AI currently unavailable: {str(e)})"
 
 def get_maya_response(user_input, conversation_history):
     return get_maya_nurturebot(user_input, conversation_history)
